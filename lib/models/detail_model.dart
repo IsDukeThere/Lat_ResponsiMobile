@@ -6,7 +6,7 @@ class DataResponse {
   factory DataResponse.fromJson(Map<String, dynamic> json) {
     return DataResponse(
       dataDetail: List<DataDetail>.from(
-        json['dataDetail'].map((x) => DataDetail.fromJson(x)),
+        json['amiibo'].map((x) => DataDetail.fromJson(x)),
       )
     );
   }
@@ -17,13 +17,13 @@ class DataResponse {
 }
 
 class DataDetail {
-  final int head;
+  final String head;
   final String character;
   final String amiiboSeries;
   final String gameSeries;
   final String image;
   final String name;
-  final int tail;
+  final String tail;
   final String type;
   final Release release;
 

@@ -11,7 +11,7 @@ class NintendoData {
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
       final alldata = jsonDecode(response.body);
-      final List data = alldata['result'];
+      final List data = alldata['amiibo'];
       return data.map(
         (json) => Data.fromJson(json)
       ).toList();
@@ -20,13 +20,18 @@ class NintendoData {
     }
   }
 
-  Future<DataDetail> getNintendoDetail(int head) async {
+  Future<DataDetail> getNintendoDetail(String head) async {
     final String detail = "$baseUrl/api/amiibo/?head=$head";
     final response = await http.get(Uri.parse(detail));
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data;
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final List listAmiibo = responseData['amiibo'];
+      if (listAmiibo.isNotEmpty) {
+      return DataDetail.fromJson(listAmiibo[0]);
+    } else {
+      throw Exception("Data Amiibo tidak ditemukan");
+    }
     } else {
       throw Exception("Gagal mengambil Data");
     }

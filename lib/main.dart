@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:latihan_responsi/models/alldata.dart';
 import 'package:latihan_responsi/views/favorit.dart';
 import 'package:latihan_responsi/views/login.dart';
 
@@ -8,6 +9,7 @@ Future<void> main() async {
 
   await Hive.initFlutter();
   // Hive.registerAdapter(Favorit());
+  Hive.registerAdapter(DataAdapter());
   await Hive.openBox('users');
   await Hive.openBox<Favorit>('Favorit');
 
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.black,
+        // scaffoldBackgroundColor: Colors.black,
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.black,
           iconTheme: IconThemeData(color: Colors.white),

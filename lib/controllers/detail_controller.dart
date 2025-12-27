@@ -6,7 +6,7 @@ class DetailController {
 
   DetailController({required this.nintendoData});
 
-  Future<DataDetail> getNintendoDetail(int head) async {
+  Future<DataDetail> getNintendoDetail(String head) async {
     return await nintendoData.getNintendoDetail(head);
   }
 }

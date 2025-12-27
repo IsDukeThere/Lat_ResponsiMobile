@@ -7,12 +7,14 @@ import 'package:latihan_responsi/views/login.dart';
 import 'package:intl/intl.dart';
 
 String formatDate(String dateString) {
-  if (dateString.isEmpty) return "-";
-  final date = DateTime.parse(dateString);
-  return DateFormat("dd MMM yyyy").format(date);
+  if (dateString == "-" || dateString.isEmpty) return "TBA";
+  try {
+    final date = DateTime.parse(dateString);
+    return DateFormat("dd MMM yyyy").format(date);
+  } catch (e) {
+    return "Invalid Date";
+  }
 }
-
-enum MovieViewMode { popular, byLanguage, search }
 
 class Home extends StatefulWidget {
   final String username;
@@ -31,8 +33,6 @@ class _MovieListViewState extends State<Home> {
 
   final TextEditingController searchController = TextEditingController();
 
-  MovieViewMode _currentMode = MovieViewMode.popular;
-
   @override
   void initState() {
     super.initState();
@@ -42,7 +42,6 @@ class _MovieListViewState extends State<Home> {
 
   Future<void> _data() async {
     setState(() {
-      _currentMode = MovieViewMode.popular;
       currentPage = 1;
     });
 
@@ -57,15 +56,7 @@ class _MovieListViewState extends State<Home> {
     setState(() => isLoadingMore = true);
 
     currentPage++;
-    List<Data> data = [];
-
-    try {
-      if (_currentMode == MovieViewMode.popular) {
-        data = await controller.getData(page: currentPage);
-      }
-    } catch (e) {
-      print("Error loading more data: $e");
-    }
+    final data = await controller.getData(page: currentPage);
 
     setState(() {
       news.addAll(data);
@@ -73,74 +64,41 @@ class _MovieListViewState extends State<Home> {
     });
   }
 
-  Future<void> searchMovies(String query) async {
-    if (query.isEmpty) {
-      setState(() => isSearching = false);
-      await _data();
-      return;
-    }
-
-    setState(() {
-      isSearching = true;
-      _currentMode = MovieViewMode.search;
-      currentPage = 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Text(
-              "Halo, ${widget.username}",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+        centerTitle: true,
+        leadingWidth: 120,
+        leading: Container(
+          padding: const EdgeInsets.only(left: 15),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Halo, ${widget.username}",
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white,
             ),
-            SizedBox(width: 18),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: TextField(
-                  controller: searchController,
-                  onChanged: searchMovies,
-                  decoration: InputDecoration(
-                    hintText: "Cari...",
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 20,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(35),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 5),
-            IconButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return LoginPage();
-                    },
-                  ),
-                );
-              },
-              icon: Icon(Icons.logout, color: Colors.white),
-            ),
-          ],
+          ),
         ),
+        title: const Text(
+          "Nintendo Amiibo List",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
+            icon: const Icon(Icons.logout, color: Colors.white),
+          ),
+        ],
       ),
 
       body: NotificationListener<ScrollNotification>(
@@ -153,25 +111,6 @@ class _MovieListViewState extends State<Home> {
         },
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: _data,
-                    child: Text("News"),
-                  ),
-                  SizedBox(width: 15),
-                  // ElevatedButton.icon(
-                  //   onPressed: ,
-                  //   label: Text(
-                  //     "Blogs",
-                  //   ),
-                  // ),
-                ],
-              ),
-            ),
             Expanded(
               child
                   : GridView.builder(
@@ -195,8 +134,8 @@ class _MovieListViewState extends State<Home> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => GameDetail(
-                                  id: m.head,
-                                  title: m.name,
+                                  head: m.head,
+                                  name: m.name,
                                   username: widget.username,
                                 ),
                               ),
@@ -220,7 +159,7 @@ class _MovieListViewState extends State<Home> {
 }
 
 class MovieCard extends StatelessWidget {
-  final int head;
+  final String head;
   final String name;
   final String image;
   final String release;
@@ -250,7 +189,7 @@ class MovieCard extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               Image.network(
-                "https://image.tmdb.org/t/p/w500$image",
+                image,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 200,
@@ -308,7 +247,9 @@ class MovieCard extends StatelessWidget {
                     SizedBox(height: 15),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 15),
+                        Text(
+                          "Release"
+                          ),
                         SizedBox(width: 5),
                         Spacer(),
                         Text(

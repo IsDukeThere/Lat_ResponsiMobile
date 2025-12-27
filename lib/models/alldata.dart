@@ -1,9 +1,11 @@
 import 'package:hive/hive.dart';
 
+part "alldata.g.dart";
+
 @HiveType(typeId: 0)
 class Data {
   @HiveField(0)
-  final int head;
+  final String head;
 
   @HiveField(1)
   final String name;
@@ -22,11 +24,15 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) {
+    String releaseDate = "-";
+    if (json['release'] != null && json['release']['eu'] != null) {
+      releaseDate = json['release']['eu'];
+    }
     return Data(
       head: json['head'],
       name: json['name'] ?? '',
       image: json['image'] ?? '',
-      release: json['release'] ?? '',
+      release: releaseDate,
     );
   }
 
